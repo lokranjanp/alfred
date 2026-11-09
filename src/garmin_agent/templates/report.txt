@@ -1,0 +1,40 @@
+GARMIN MORNING — {{ day.report_date }}
+Hello {{ preferences.name }}.
+Wellness and activities: {{ day.wellness_date }}
+Sleep ending: {{ day.report_date }}
+Timezone: {{ day.timezone }} | Generated: {{ generated_at }}
+{% if delayed %}Delayed report.{% endif %}{% if preview %}Preview — no email sent.{% endif %}
+{% if not ai_available %}Personalized analysis unavailable — factual report.{% endif %}
+
+{{ recommendations.overview }}
+{% for warning in day.warnings %}
+Data note: {{ warning }}{% endfor %}
+
+MEASUREMENTS
+{% for metric in metrics %}{{ metric.label }} ({{ metric.date }}): {{ metric.display_value }} {% if metric.value is not none %}{{ metric.display_unit }}{% endif %} | Prior 7 days: {{ metric.display_baseline or 'Insufficient data' }} ({{ metric.samples }} valid samples)
+{% endfor %}
+LAST NIGHT'S SLEEP
+{{ recommendations.sleep_analysis }}
+{% if day.sleep %}Window: {{ day.sleep.start or 'Unavailable' }} to {{ day.sleep.end or 'Unavailable' }}
+Score: {{ day.sleep.score if day.sleep.score is not none else 'Unavailable' }}/100
+Deep: {{ day.sleep.deep_minutes }} min | Light: {{ day.sleep.light_minutes }} min | REM: {{ day.sleep.rem_minutes }} min | Awake: {{ day.sleep.awake_minutes }} min | Awakenings: {{ day.sleep.awakenings }}{% endif %}
+
+YESTERDAY'S ACTIVITIES
+{% for activity in day.activities %}{{ activity.name }} ({{ activity.kind }}): {{ activity.minutes }} min, {% if preferences.units == 'imperial' %}{{ '%.2f'|format(activity.distance_km * 0.621371) if activity.distance_km is not none else 'Unavailable' }} mi{% else %}{{ activity.distance_km }} km{% endif %}, {{ activity.calories }} kcal, average HR {{ activity.average_hr }} bpm
+{% else %}No recorded activities returned. Check data notes for retrieval issues.
+{% endfor %}
+TODAY'S MOVEMENT
+{% if recommendations.exercise %}{{ recommendations.exercise.activity }} — {{ recommendations.exercise.minutes }} min, {{ recommendations.exercise.intensity }}
+{{ recommendations.exercise.reason }}
+Easier option: {{ recommendations.exercise.alternative }}{% else %}A personalized activity plan is unavailable today.{% endif %}
+
+SUGGESTED MEALS
+{% for meal in meals %}{{ meal.meal|title }}: {{ meal.name }} — {{ meal.servings }} x {{ meal.serving }}, {{ meal.calories }} kcal
+{% endfor %}{% if meals %}Suggested meal total: {{ meal_calories }} kcal. Calculated from saved serving data; not logged intake or a calorie requirement.{% endif %}
+{{ recommendations.food_note }}
+
+HYDRATION
+{{ recommendations.hydration }}
+
+General wellness guidance based on wearable estimates and your preferences.
+Missing readings are not zero. Verify food ingredient labels and declared allergens.
